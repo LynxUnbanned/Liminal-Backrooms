@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Liminal Backrooms</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-panel: #12121a;
+            --bg-message: #1a1a24;
+            --border-glow: #2a2a3a;
+            --text-primary: #e8e8f0;
+            --text-dim: #8888a0;
+            --accent-cyan: #00ffd0;
+            --accent-purple: #b388ff;
+            --accent-blue: #4fc3f7;
+            --accent-orange: #ffab40;
+            --accent-pink: #ff4081;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+            margin: 0; 
+            padding: 0;
+            line-height: 1.7; 
+            color: var(--text-primary);
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(ellipse at top, rgba(0, 255, 208, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(179, 136, 255, 0.03) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 208, 0.05) 0%, rgba(179, 136, 255, 0.05) 100%);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
+        }
+        
+        h1 { 
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+            font-size: 2.2em;
+            margin: 0 0 10px 0;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(0, 255, 208, 0.3);
+        }
+        
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95em;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .message { 
+            margin-bottom: 30px; 
+            padding: 24px;
+            border-radius: 12px;
+            background: var(--bg-message);
+            border: 1px solid var(--border-glow);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .message:hover {
+            border-color: rgba(0, 255, 208, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .message-content {
+            width: 100%;
+        }
+        
+        .message-image {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .message-image img {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .generated-image-container {
+            background: linear-gradient(135deg, rgba(179, 136, 255, 0.08) 0%, rgba(255, 64, 129, 0.08) 100%);
+            border: 1px solid rgba(179, 136, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .generated-image-container img {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+        
+        .generated-image-label {
+            color: var(--accent-purple);
+            font-size: 0.9em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .generated-image-prompt {
+            color: var(--text-dim);
+            font-size: 0.85em;
+            font-style: italic;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(179, 136, 255, 0.2);
+        }
+        
+        .user {
+            border-left: 3px solid var(--accent-cyan);
+        }
+        
+        .assistant {
+            border-left: 3px solid var(--accent-purple);
+        }
+        
+        .system {
+            background: rgba(255, 171, 64, 0.05);
+            border-left: 3px solid var(--accent-orange);
+            font-style: italic;
+        }
+        
+        .agent-notification {
+            background: linear-gradient(135deg, rgba(0, 255, 208, 0.08) 0%, rgba(79, 195, 247, 0.08) 100%);
+            border: 1px solid rgba(0, 255, 208, 0.2);
+            border-left: 3px solid var(--accent-cyan);
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 0.9em;
+            border-radius: 8px;
+        }
+        
+        .header { 
+            font-weight: 500;
+            margin-bottom: 16px; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .ai-name {
+            color: var(--accent-purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95em;
+        }
+        
+        .model-name {
+            color: var(--text-dim);
+            font-size: 0.85em;
+            font-weight: 400;
+        }
+        
+        .user .ai-name {
+            color: var(--accent-cyan);
+        }
+        
+        .timestamp {
+            font-size: 0.75em;
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+        
+        .content {
+            white-space: pre-wrap;
+            font-size: 0.95em;
+            line-height: 1.8;
+        }
+        
+        .greentext {
+            color: #789922;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        p { margin: 0.6em 0; }
+        
+        code { 
+            background: rgba(0, 255, 208, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-cyan);
+        }
+        
+        pre { 
+            background: var(--bg-dark);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            margin: 20px 0;
+            border: 1px solid var(--border-glow);
+            color: var(--text-primary);
+        }
+        
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid var(--border-glow);
+        }
+        
+        footer p {
+            color: var(--text-dim);
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+        
+        footer a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+        
+        /* Share button */
+        .share-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .share-btn {
+            background: var(--bg-panel);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+        
+        .share-btn:hover {
+            background: rgba(0, 255, 208, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 208, 0.2);
+        }
+        
+        @media (max-width: 600px) {
+            .container { padding: 20px 12px; }
+            h1 { font-size: 1.5em; }
+            .message { padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="share-bar">
+        <button class="share-btn" onclick="copyPageUrl()">📋 Copy Link</button>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>⟨ Liminal Backrooms ⟩</h1>
+            <p class="subtitle">AI Conversation Archive</p>
+        </header>
+        
+        <div id="conversation">
+        <div class="message user">
+            <div class="message-content">
+                <div class="header"><span class="ai-name">User</span> <span class="timestamp">November 29, 2025 at 08:35 PM</span></div>
+                <div class="content">!image &quot;a liminal hallway bathed in neon&quot;</div>
+            </div>
+        </div>
+        <div class="message agent-notification">
+            <div class="message-content">
+                <div class="content">🎨 [AI-1 (gemini-2.5-flash)]: !image &quot;a liminal hallway bathed in neon&quot; (generating...)</div>
+            </div>
+        </div>
+        <div class="message assistant">
+            <div class="message-content">
+                <div class="header"><span class="ai-name">AI-1</span> <span class="model-name">(gemini-2.5-flash)</span> <span class="timestamp">November 29, 2025 at 08:35 PM</span></div>
+                <div class="content">!image &quot;a liminal hallway bathed in neon&quot;</div>
+            </div>
+        </div>
+        </div>
+        
+        <footer>
+            <p>Generated by <a href="#">Liminal Backrooms</a></p>
+        </footer>
+    </div>
+    
+    <script>
+        function copyPageUrl() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.querySelector('.share-btn');
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 2000);
+            }).catch(() => {
+                // Fallback for file:// URLs
+                const text = document.documentElement.outerHTML;
+                const blob = new Blob([text], {type: 'text/html'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'conversation.html';
+                a.click();
+                const btn = document.querySelector('.share-btn');
+                btn.textContent = '✓ Downloaded!';
+                setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
